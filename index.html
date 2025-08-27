@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo Biyutería</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  body {
+    background: linear-gradient(to bottom, #fff, #ffe6f0);
+    color: #333;
+  }
+
+  /* Navbar */
+  nav {
+    position: sticky;
+    top: 0;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+
+  nav .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  nav h1 {
+    font-size: 1.8rem;
+    color: #e91e63;
+  }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  nav ul li {
+    cursor: pointer;
+    font-weight: 500;
+    color: #555;
+    transition: color 0.3s;
+  }
+
+  nav ul li:hover,
+  nav ul li.active {
+    color: #e91e63;
+  }
+
+  /* Catálogo */
+  main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  main h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: #e91e63;
+  }
+
+  .grid {
+    display: grid;
+    gap: 1.5rem;
+    row-gap: 200px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .card {
+    background: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+
+  .card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .card .info {
+    padding: 1rem;
+  }
+
+  .card .info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+    color: #333;
+  }
+
+  .card .info p {
+    font-size: 0.9rem;
+    color: #777;
+  }
+
+  .card .info .price {
+    margin-top: 0.5rem;
+    font-weight: bold;
+    color: #e91e63;
+    font-size: 1.1rem;
+  }
+
+  @media(max-width: 600px){
+    nav ul {
+      gap: 1rem;
+    }
+    nav h1 {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+  <div class="container">
+    <h1>✨ Biyutería</h1>
+    <ul>
+      <li class="active">ANILLOS</li>
+      
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div id="catalogo"></div>
+</main>
+
+<script>
+async function cargarCSV() {
+  try {
+    const response = await fetch('data/productos.csv'); // tu archivo CSV
+    const data = await response.text();
+    console.log(data);
+    const filas = data.trim().split('\n');
+    const encabezados = filas[0].split(';').map(h => h.trim());
+
+    const catalogo = document.getElementById('catalogo');
+    catalogo.innerHTML = '';
+
+    const categorias = {};
+
+    // Agrupar productos por categoría
+    for (let i = 1; i < filas.length; i++) {
+      const valores = filas[i].split(';').map(v => v.trim());
+      console.log(valores);
+      const producto = {};
+      encabezados.forEach((key, idx) => {
+        producto[key] = valores[idx];
+      });
+      
+      console.log('LOS PRODUCTOS SON: '+producto);
+      console.log('LOS ENCABEZADOS SON: '+encabezados);
+      
+      if (!categorias[producto.Categoria]) {
+        categorias[producto.Categoria] = [];
+      }
+      categorias[producto.Categoria].push(producto);
+    }
+
+    // Renderizar HTML dinámicamente
+    for (const [categoria, productos] of Object.entries(categorias)) {
+      const titulo = document.createElement('h2');
+      //titulo.textContent = categoria;
+      titulo.textContent = "ANILLOS";
+      
+      catalogo.appendChild(titulo);
+
+      const grid = document.createElement('div');
+      grid.className = 'grid';
+
+      productos.forEach(p => {
+        console.log("EL PRODUCTO ES: "+p.Nombre)
+        console.log("EL PRODUCTO ES: "+p.Foto)
+        console.log("EL PRODUCTO ES: "+p.Precio)
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="photos/${p.Nombre}.png" alt="${p.Nombre}">
+          <div class="info">
+            <h3>${p.Nombre}</h3>
+            <p>${p.Material}</p>
+            <div class="price">Bs. ${p.Precio}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      catalogo.appendChild(grid);
+    }
+  } catch (error) {
+    console.error('Error al cargar el CSV:', error);
+  }
+}
+
+// Ejecutar al cargar la página
+cargarCSV();
+</script>
+
+</body>
+</html>
