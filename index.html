@@ -7,6 +7,8 @@
 
   <!-- Vue -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 
   <style>
     * {
@@ -132,7 +134,7 @@
   <!-- NAVBAR -->
   <nav>
     <div class="container">
-      <h1>✨ Biyutería</h1>
+      <img src="photos/logo.png" alt="Biyutería" style="height: 50px;">
       <ul>
         <li
                 v-for="cat in categorias"
@@ -152,7 +154,7 @@
 
     <div class="grid">
       <div class="card" v-for="p in productosFiltrados" :key="p.Nombre">
-        <img :src="'photos/' + p.Nombre + '.png'" :alt="p.Nombre">
+        <img :src="'photos/'+this.version+'/' + p.Fotografia" :alt="p.Nombre">
         <div class="info">
           <h3>{{ p.Nombre }}</h3>
           <p>{{ p.Material }}</p>
@@ -176,6 +178,7 @@
   createApp({
     data() {
       return {
+        version: 2,
         productos: [],
         categorias: [],
         categoriaSeleccionada: null,
@@ -192,40 +195,38 @@
     },
 
     async mounted() {
-      await this.cargarCSV();
+      await this.cargarExcel();
     },
 
     methods: {
-      async cargarCSV() {
+      async cargarExcel() {
         try {
-          const response = await fetch("data/productos.csv");
-          const texto = await response.text();
+          const response = await fetch("data/"+this.version+"/productos.xlsx");
+          const arrayBuffer = await response.arrayBuffer();
 
-          const filas = texto.trim().split("\n");
-          const encabezados = filas[0].split(";").map(h => h.trim());
+          const workbook = XLSX.read(arrayBuffer, { type: "array" });
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
 
-          for (let i = 1; i < filas.length; i++) {
-            const valores = filas[i].split(";").map(v => v.trim());
-            const obj = {};
-            encabezados.forEach((key, idx) => obj[key] = valores[idx]);
-            this.productos.push(obj);
-          }
+          // SheetJS convierte la hoja a objetos JSON automáticamente
+          this.productos = XLSX.utils.sheet_to_json(sheet);
 
-          // Categorías únicas desde CSV
+          // Generar categorías únicas
           this.categorias = [...new Set(this.productos.map(p => p.Categoria))];
 
-          // Agregar categorías nuevas
-          ["Pulseras", "Aros", "Anillos"].forEach(cat => {
-            if (!this.categorias.includes(cat)) this.categorias.push(cat);
-          });
+          // Asegurar categorías fijas
+          // ["Pulseras", "Aros", "Anillos"].forEach(cat => {
+          //   if (!this.categorias.includes(cat)) this.categorias.push(cat);
+          // });
 
-          // Selección por defecto
-          this.categoriaSeleccionada = this.categorias[0];
+          // Seleccionar "Pulseras" por defecto
+          this.categoriaSeleccionada = "Pulseras";
 
         } catch (err) {
-          console.error("Error al cargar CSV", err);
+          console.error("Error al cargar Excel", err);
         }
       }
+
     }
   }).mount("#app");
 </script>
