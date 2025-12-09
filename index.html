@@ -1,309 +1,338 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo Biyutería</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo Biyutería</title>
 
-  <!-- Vue -->
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Vue -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-  <!-- BOOTSTRAP -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-    body {
-      background: linear-gradient(to bottom, #fff, #ffe6f0);
-      color: #333;
-    }
+        body {
+            background: linear-gradient(to bottom, #fff, #ffe6f0);
+            color: #333;
+        }
 
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255,255,255,0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-    }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
 
-    /* GRID RESPONSIVE */
-    .grid {
-      display: grid;
-      gap: 20px;
-    }
+        /* GRID RESPONSIVE */
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
 
-    /* 4 columnas PC */
-    @media (min-width: 1200px) {
-      .grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
+        /* 4 columnas PC */
+        @media (min-width: 1200px) {
+            .grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
 
-    /* 3 columnas tablet */
-    @media (min-width: 768px) and (max-width: 1199px) {
-      .grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
+        /* 3 columnas tablet */
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
 
-    /* 2 columnas móvil grande */
-    @media (min-width: 576px) and (max-width: 767px) {
-      .grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
+        /* 2 columnas móvil grande */
+        @media (min-width: 576px) and (max-width: 767px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
 
-    /* 1 columna móvil pequeño */
-    @media (max-width: 575px) {
-      .grid {
-        grid-template-columns: repeat(1, 1fr);
-      }
-    }
+        /* 1 columna móvil pequeño */
+        @media (max-width: 575px) {
+            .grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
 
-    /* ESTILO CARD */
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 10px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-      text-align: center;
-    }
+        /* ESTILO CARD */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            text-align: center;
+        }
 
-    .card:hover {
-      transform: scale(1.03);
-    }
+        .card:hover {
+            transform: scale(1.03);
+        }
 
-    .card img {
-      width: 100%;
-      border-radius: 10px;
-      object-fit: cover;
-    }
+        .card img {
+            width: 100%;
+            border-radius: 10px;
+            object-fit: cover;
+        }
 
-    .info h3 {
-      margin-top: 10px;
-      font-size: 1.1rem;
-      font-weight: 700;    /* Nombre resaltado */
-      color: #e91e63;
-    }
+        .info h3 {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            font-weight: 700; /* Nombre resaltado */
+            color: #e91e63;
+        }
 
-    .info p {
-      margin: 5px 0;
-      font-size: 0.9rem;
-      color: #666;
-    }
+        .info p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
 
-    .price {
-      font-size: 1.2rem;
-      font-weight: 600;    /* Precio destacado */
-      color: #d81b60;
-      margin-top: 5px;
-    }
-    .card img {
-      width: 100%;
-      height: 260px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
+        .price {
+            font-size: 1.2rem;
+            font-weight: 600; /* Precio destacado */
+            color: #d81b60;
+            margin-top: 5px;
+        }
 
-    @media (max-width: 576px) {
-      .card img {
-        height: 200px;
-      }
-    }
-  </style>
+        .card img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 576px) {
+            .card img {
+                height: 200px;
+            }
+        }
+    </style>
 </head>
 <body>
 
 <div id="app">
 
-  <div v-if="loading" class="loading-overlay">
-    <div class="spinner-border text-pink" role="status">
-      <span class="visually-hidden">Cargando...</span>
+    <div v-if="loading" class="loading-overlay">
+        <div class="spinner-border text-pink" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
     </div>
-  </div>
 
-  <!-- 🔥 NAVBAR BOOTSTRAP COMPLETO -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
+    <!-- 🔥 NAVBAR BOOTSTRAP COMPLETO -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
 
-      <!-- Logo -->
-      <a class="navbar-brand" href="#">
-        <img src="photos/logo.png" style="height:50px;">
-      </a>
-
-      <!-- Botón Collapse -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-              data-bs-target="#navbarSupportedContent">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <!-- Contenido colapsable -->
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
-        <!-- 🔥 CATEGORÍAS DINÁMICAS -->
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
-          <li class="nav-item"
-              v-for="cat in categorias"
-              :key="cat">
-            <a class="nav-link categoria-item"
-               :class="{ active: categoriaSeleccionada === cat }"
-               @click="categoriaSeleccionada = cat">
-              {{ cat }}
+            <!-- Logo -->
+            <a class="navbar-brand" href="#">
+                <img src="photos/logo.png" style="height:50px;">
             </a>
-          </li>
 
-          <!-- Dropdown opcional (igual que tu estructura original) -->
-<!--          <li class="nav-item dropdown">-->
-<!--            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">-->
-<!--              Más-->
-<!--            </a>-->
-<!--            <ul class="dropdown-menu">-->
-<!--              <li><a class="dropdown-item" href="#">Contacto</a></li>-->
-<!--              <li><a class="dropdown-item" href="#">Ofertas</a></li>-->
-<!--              <li><hr class="dropdown-divider"></li>-->
-<!--              <li><a class="dropdown-item" href="#">Acerca de</a></li>-->
-<!--            </ul>-->
-<!--          </li>-->
+            <!-- Botón Collapse -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        </ul>
+            <!-- Contenido colapsable -->
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-        <!-- Formulario de búsqueda -->
-<!--        <form class="d-flex">-->
-<!--          <input class="form-control me-2" type="search" placeholder="Buscar">-->
-<!--          <button class="btn btn-outline-success" type="submit">Buscar</button>-->
-<!--        </form>-->
+                <!-- 🔥 CATEGORÍAS DINÁMICAS -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-      </div>
-    </div>
-  </nav>
+                    <li class="nav-item"
+                        v-for="cat in categorias"
+                        :key="cat">
+                        <a class="nav-link categoria-item"
+                           :class="{ active: categoriaSeleccionada === cat }"
+                           @click="categoriaSeleccionada = cat">
+                            {{ cat }}
+                        </a>
+                    </li>
 
-  <!-- CATÁLOGO -->
-  <main class="container mt-4">
-    <h2>{{ categoriaSeleccionada }}</h2>
+                    <!-- Dropdown opcional (igual que tu estructura original) -->
+                    <!--          <li class="nav-item dropdown">-->
+                    <!--            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">-->
+                    <!--              Más-->
+                    <!--            </a>-->
+                    <!--            <ul class="dropdown-menu">-->
+                    <!--              <li><a class="dropdown-item" href="#">Contacto</a></li>-->
+                    <!--              <li><a class="dropdown-item" href="#">Ofertas</a></li>-->
+                    <!--              <li><hr class="dropdown-divider"></li>-->
+                    <!--              <li><a class="dropdown-item" href="#">Acerca de</a></li>-->
+                    <!--            </ul>-->
+                    <!--          </li>-->
 
-    <div class="grid">
-      <div class="card" v-for="p in productosFiltrados" :key="p.Nombre"
-           @click="abrirImagen(p)" style="cursor:pointer;">
-        <img :src="'photos/'+this.version+'/' + p.Fotografia" :alt="p.Nombre">
-        <div class="info">
-          <h3>{{ p.Nombre }}</h3>
-          <p>{{ p.Material }}</p>
-          <div class="price">Bs. {{ p.Precio }}</div>
+                </ul>
+
+                <!-- Formulario de búsqueda -->
+                <!--        <form class="d-flex">-->
+                <!--          <input class="form-control me-2" type="search" placeholder="Buscar">-->
+                <!--          <button class="btn btn-outline-success" type="submit">Buscar</button>-->
+                <!--        </form>-->
+
+            </div>
         </div>
-      </div>
+    </nav>
 
-      <div class="card" v-if="productosFiltrados.length === 0">
-        <div class="info">
-          <h3>No hay productos en esta categoría</h3>
+    <!-- CATÁLOGO -->
+    <main class="container mt-4">
+        <h2>{{ categoriaSeleccionada }}</h2>
+
+        <div class="grid">
+            <div class="card" v-for="p in productosFiltrados" :key="p.Nombre"
+                 @click="abrirImagen(p)" style="cursor:pointer;">
+                <img :src="'photos/'+this.version+'/' + p.Fotografia" :alt="p.Nombre">
+                <div class="info">
+                    <h3>{{ p.Nombre }}</h3>
+                    <p>{{ p.Material }}</p>
+                    <div class="price">Bs. {{ p.Precio }}</div>
+                </div>
+            </div>
+
+            <div class="card" v-if="productosFiltrados.length === 0">
+                <div class="info">
+                    <h3>No hay productos en esta categoría</h3>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </main>
+    </main>
 
-  <!-- MODAL DE IMAGEN COMPLETA -->
-  <div class="modal fade" id="modalImagen" tabindex="-1">
-    <div class="modal-dialog modal-fullscreen">
-      <div class="modal-content" style="background: rgba(0,0,0,0.9); border:none;">
-        <div class="modal-body d-flex justify-content-center align-items-center p-0">
-          <img :src="imagenSeleccionada" class="img-fluid" style="max-height: 100vh; object-fit: contain;">
+    <!-- MODAL DE IMAGEN COMPLETA -->
+    <div class="modal fade" id="modalImagen" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content" style="background: rgba(0,0,0,0.9); border:none;">
+                <div class="modal-body d-flex justify-content-center align-items-center p-0">
+                    <img :src="imagenSeleccionada" class="img-fluid" style="max-height: 100vh; object-fit: contain;">
+                </div>
+
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                        data-bs-dismiss="modal"></button>
+            </div>
         </div>
-
-        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
-                data-bs-dismiss="modal"></button>
-      </div>
     </div>
-  </div>
 </div>
+
+<!-- Floating Action Button WhatsApp -->
+<a href="https://wa.me/message/VQSH4P7NVHCHG1?src=qr"
+   class="btn btn-success rounded-circle"
+   style="
+     position: fixed;
+     bottom: 25px;
+     right: 25px;
+     width: 60px;
+     height: 60px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 28px;
+     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+     z-index: 3000;
+   "
+   target="_blank">
+    <i class="bi bi-whatsapp"></i>
+</a>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  const { createApp } = Vue;
+    const {createApp} = Vue;
 
-  createApp({
-    data() {
-      return {
-        version: 2,
-        productos: [],
-        categorias: [],
-        categoriaSeleccionada: null,
-        loading: true,   // 🔥 Spinner activo al inicio
-        imagenSeleccionada: null,
-      };
-    },
+    createApp({
+        data() {
+            return {
+                version: 2,
+                productos: [],
+                categorias: [],
+                categoriaSeleccionada: null,
+                loading: true,   // 🔥 Spinner activo al inicio
+                imagenSeleccionada: null,
+            };
+        },
 
-    computed: {
-      productosFiltrados() {
-        if (!this.categoriaSeleccionada) return this.productos;
-        return this.productos.filter(p => p.Categoria === this.categoriaSeleccionada);
-      }
-    },
-
-    async mounted() {
-      await this.cargarExcel();
-      await this.$nextTick();
-      await this.esperarCargaImagenes(); // 🔥 Esperar imágenes
-      this.loading = false;              // 🔥 Ocultar spinner
-    },
-
-    methods: {
-
-      abrirImagen(p) {
-        this.imagenSeleccionada = `photos/${this.version}/${p.Fotografia}`;
-        const modal = new bootstrap.Modal(document.getElementById("modalImagen"));
-        modal.show();
-      },
-
-      async cargarExcel() {
-        try {
-          const response = await fetch("data/" + this.version + "/productos.xlsx");
-          const arrayBuffer = await response.arrayBuffer();
-          const workbook = XLSX.read(arrayBuffer, { type: "array" });
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-          this.productos = XLSX.utils.sheet_to_json(sheet);
-
-          this.categorias = [...new Set(this.productos.map(p => p.Categoria))];
-          this.categoriaSeleccionada = "Pulseras";
-
-        } catch (err) {
-          console.error("Error al cargar Excel", err);
-        }
-      },
-
-      // 🔥 Esperar a que TODAS las imágenes terminen de cargar
-      esperarCargaImagenes() {
-        return new Promise(resolve => {
-          const images = document.querySelectorAll("img");
-          let loaded = 0;
-
-          if (images.length === 0) return resolve();
-
-          images.forEach(img => {
-            if (img.complete) {
-              loaded++;
-              if (loaded === images.length) resolve();
-            } else {
-              img.onload = img.onerror = () => {
-                loaded++;
-                if (loaded === images.length) resolve();
-              };
+        computed: {
+            productosFiltrados() {
+                if (!this.categoriaSeleccionada) return this.productos;
+                return this.productos.filter(p => p.Categoria === this.categoriaSeleccionada);
             }
-          });
-        });
-      }
-    }
-  }).mount("#app");
+        },
+
+        async mounted() {
+            await this.cargarExcel();
+            await this.$nextTick();
+            await this.esperarCargaImagenes(); // 🔥 Esperar imágenes
+            this.loading = false;              // 🔥 Ocultar spinner
+        },
+
+        methods: {
+
+            abrirImagen(p) {
+                this.imagenSeleccionada = `photos/${this.version}/${p.Fotografia}`;
+                const modal = new bootstrap.Modal(document.getElementById("modalImagen"));
+                modal.show();
+            },
+
+            async cargarExcel() {
+                try {
+                    const response = await fetch("data/" + this.version + "/productos.xlsx");
+                    const arrayBuffer = await response.arrayBuffer();
+                    const workbook = XLSX.read(arrayBuffer, {type: "array"});
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    this.productos = XLSX.utils.sheet_to_json(sheet);
+
+                    this.categorias = [...new Set(this.productos.map(p => p.Categoria))];
+                    this.categoriaSeleccionada = "Pulseras";
+
+                } catch (err) {
+                    console.error("Error al cargar Excel", err);
+                }
+            },
+
+            // 🔥 Esperar a que TODAS las imágenes terminen de cargar
+            esperarCargaImagenes() {
+                return new Promise(resolve => {
+                    const images = document.querySelectorAll("img");
+                    let loaded = 0;
+
+                    if (images.length === 0) return resolve();
+
+                    images.forEach(img => {
+                        if (img.complete) {
+                            loaded++;
+                            if (loaded === images.length) resolve();
+                        } else {
+                            img.onload = img.onerror = () => {
+                                loaded++;
+                                if (loaded === images.length) resolve();
+                            };
+                        }
+                    });
+                });
+            }
+        }
+    }).mount("#app");
 </script>
 
 </body>
